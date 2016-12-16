@@ -30,14 +30,21 @@ var server = http.createServer(app);
 var serverSocket = io(server);
 serverSocket.on('connection',function(client){
     client.on('join', function(name){
-       client.broadcast.emit('update',name + ' is connected');
-       people[client.id] = name;
+        people[client.id] = name;
+        client.emit('update', ' you have connected to the chat.');
+        client.broadcast.emit('update', name + ' has joined the chat.');
+        serverSocket.emit('update-people',people);
     });
     client.on('send',function(msg){
-        serverSocket.emit('update',msg);
+        client.broadcast.emit('chat', people[client.id],msg);
+        client.emit('chat','',msg)
     });
+
+
     client.on('disconnect',function(){
-        client.broadcast.emit('update','user disconnected');
+        client.broadcast.emit('update', people[client.id] + ' has left the chat');
+        delete people[client.id];
+        serverSocket.emit('update-people',people);
     });
 });
 

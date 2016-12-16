@@ -5,27 +5,114 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/javascripts/bootstrap.js"></script>
   <script src="/javascripts/jquery-1.11.1.js"></script>
-  <link rel='stylesheet' href='/stylesheets/style.css' />
-
+  <link rel='stylesheet' href='/stylesheets/bootstrap.css'/>
+  <!--<link rel='stylesheet' href='/stylesheets/style.css' />-->
 </head>
 <body>
 <h1><%= title %></h1>
+<div class="row">
+  <div class="span2">
+    <h5 class="headi"><b>Users</b></h5>
+    <ul id="people" class="unstyled"></ul>
+  </div>
+  <div class="span4">
+    <h5 class="headi"><b>Chat</b></h5>
+    <ul id="messages" class="unstyled"></ul>
+  </div>
+</div>
 
-<ul id="messages"></ul>
+<div class="row">
 
-<form action="">
-  <input id="m" autocomplete="off" /><button>Send</button>
-</form>
+  <div class="span5 offset2" id="login">
+
+    <form id="form1" class="form-inline" >
+      <input type="text" class="input-small" placeholder="Your name" id="name">
+      <input type="button" name="join" id="join" value="Join" class="btn btn-primary">
+    </form>
+  </div>
+
+  <div class="span5 offset2" id="chat">
+    <form id="form2" class="form-inline">
+      <input type="text" class="input" placeholder="Your message" id="msg">
+      <input type="button" name="send" id="send" value="Send" class="btn btn-success">
+    </form>
+  </div>
+</div>
+
 <script>
-    var socket = io();
-    socket.emit('join');
-    $('form').submit(function(){
-        socket.emit('send', $('#m').val());
-        $('#m').val('');
-        return false;
+
+    $(document).ready(function() {
+        var socket = io();
+        $("#chat").hide();
+        $(".headi").hide();
+        $("#name").focus();
+        $("form").submit(function (event) {
+            event.preventDefault();
+        });
+
+        $("#join").click(function () {
+            var name = $("#name").val();
+            if (name != "") {
+                $(".headi").show();
+                socket.emit('join', name);
+
+                $("#login").detach();
+                $("#chat").show();
+
+                $("#msg").focus();
+                ready = true;
+            }
+        });
+
+        $("#name").keypress(function (e) {
+            if (e.which == 13) {
+                var name = $("#name").val();
+                if (name != "") {
+                    socket.emit("join", name);
+                    $("#login").detach();
+                    $("#chat").show();
+                    $("#msg").focus();
+                    ready = true;
+                }
+            }
+        });
+
+        $('#send').click(function () {
+            socket.emit('send', $('#msg').val());
+            $('#msg').val('');
+            return false;
+        });
+
+        $("#msg").keypress(function (e) {
+            if (e.which == 13) {
+                socket.emit('send', $('#msg').val());
+                $('#msg').val('');
+                return false;
+            }
+        });
+
+        socket.on('update',function(msg){
+            $('#messages').append($('<li>').text(msg));
+        });
+
+        socket.on('chat',function(who,msg){
+            if(who != "") {
+                $('#messages').append($('<li>').text(who + ' says: ' + msg));
+            }else{
+                $('#messages').append($('<li>').text(msg));
+            }
+        });
+
+        socket.on('update-people', function(people){
+            if(ready) {
+                $("#people").empty();
+                $.each(people, function(clientid, name) {
+                    $('#people').append($('<li>').text(name));
+                });
+            }
+        });
     });
-    socket.on('update',function(msg){
-        $('#messages').append($('<li>').text(msg));
-    });</script>
+
+</script>
 </body>
 </html>
