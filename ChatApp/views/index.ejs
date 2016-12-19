@@ -1,47 +1,69 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title><%= title %></title>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/javascripts/bootstrap.js"></script>
-  <script src="/javascripts/jquery-1.11.1.js"></script>
-  <link rel='stylesheet' href='/stylesheets/bootstrap.css'/>
-  <!--<link rel='stylesheet' href='/stylesheets/style.css' />-->
+    <title><%= title %></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/javascripts/bootstrap.js"></script>
+    <script src="/javascripts/jquery-1.11.1.js"></script>
+    <link rel='stylesheet' href='/stylesheets/bootstrap.css'/>
+
 </head>
 <body>
-<h1><%= title %></h1>
-<div class="row">
-  <div class="span2">
-    <h5 class="headi"><b>Users</b></h5>
-    <ul id="people" class="unstyled"></ul>
-  </div>
-  <div class="span4">
-    <h5 class="headi"><b>Chat</b></h5>
-    <ul id="messages" class="unstyled"></ul>
-  </div>
+<div class="container-fluid">
+    <div class="page-header">
+        <h1 id="title"><%= title %></h1>
+    </div>
+    <div class="row-fluid">
+        <div class="span4 offset4" id="login">
+            <h3 style="text-align: center">Welcome to the simple chat client!</h3>
+            <p style="text-align: center">Please enter your name to start chatting.</p>
+            </br>
+            <div class="panel-footer">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control" placeholder="Name..." id="name">
+                    <div class="input-group-btn">
+                        <button class="btn btn-primary" type="submit" name="join" id="join" value="Join"><i
+                                    class="glyphicon glyphicon-thumbs-up"></i></button>
+                    </div>
+                </div>
+            </div>
+            <p id="number-of-users" style="text-align: center"> </p>
+        </div>
+
+    </div>
+    <!---->
+    <div class="row-fluid" id="chat">
+        <div>
+            <div class="span3" id="users">
+                <h5 class="headi"><b>Users</b></h5>
+                <ul id="people" class="unstyled"></ul>
+            </div>
+            <div class="span6 panel panel-default">
+                <div class="panel-heading">
+                    <h5 class="headi"><b>Chat</b></h5>
+                </div>
+                <div class="panel-body" id="chatbox">
+                    <ul id="messages" class="unstyled"></ul>
+                </div>
+                <div class="panel-footer">
+                    <div class="input-group input-group-sm">
+                        <input type="text" class="form-control" placeholder="Enter Message..." id="msg">
+                        <div class="input-group-btn">
+                            <button class="btn btn-success" type="submit" name="send" id="send" value="Send"><i
+                                        class="glyphicon glyphicon-tree-conifer"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<div class="row">
-
-  <div class="span5 offset2" id="login">
-
-    <form id="form1" class="form-inline" >
-      <input type="text" class="input-small" placeholder="Your name" id="name">
-      <input type="button" name="join" id="join" value="Join" class="btn btn-primary">
-    </form>
-  </div>
-
-  <div class="span5 offset2" id="chat">
-    <form id="form2" class="form-inline">
-      <input type="text" class="input" placeholder="Your message" id="msg">
-      <input type="button" name="send" id="send" value="Send" class="btn btn-success">
-    </form>
-  </div>
 </div>
-
 <script>
-
-    $(document).ready(function() {
+    $(document).ready(function () {
         var socket = io();
         $("#chat").hide();
         $(".headi").hide();
@@ -49,6 +71,8 @@
         $("form").submit(function (event) {
             event.preventDefault();
         });
+
+        socket.emit('num-users');
 
         $("#join").click(function () {
             var name = $("#name").val();
@@ -68,6 +92,7 @@
             if (e.which == 13) {
                 var name = $("#name").val();
                 if (name != "") {
+                    $(".headi").show();
                     socket.emit("join", name);
                     $("#login").detach();
                     $("#chat").show();
@@ -91,28 +116,31 @@
             }
         });
 
-        socket.on('update',function(msg){
+        socket.on('update', function (msg) {
             $('#messages').append($('<li>').text(msg));
         });
 
-        socket.on('chat',function(who,msg){
-            if(who != "") {
+        socket.on('chat', function (who, msg) {
+            if (who != "") {
                 $('#messages').append($('<li>').text(who + ' says: ' + msg));
-            }else{
+            } else {
                 $('#messages').append($('<li>').text(msg));
             }
         });
 
-        socket.on('update-people', function(people){
-            if(ready) {
+        socket.on('update-people', function (people) {
+            if (ready) {
                 $("#people").empty();
-                $.each(people, function(clientid, name) {
-                    $('#people').append($('<li>').text(name));
+                $.each(people, function (name) {
+                    $('#people').append($('<li>').text(people[name]));
                 });
             }
         });
+        socket.on('update-num-users',function(counter){
+            $('#number-of-users').text('Number of users online: ' + counter);
+            console.log('Number of users online: ' + counter);
+        });
     });
-
 </script>
 </body>
 </html>

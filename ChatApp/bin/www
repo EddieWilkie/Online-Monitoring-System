@@ -11,6 +11,7 @@ var io = require('socket.io');
  * Global variables
  */
 var people = {};
+var numOfPeople = 0;
 /**
  * Get port from environment and store in Express.
  */
@@ -34,17 +35,24 @@ serverSocket.on('connection',function(client){
         client.emit('update', ' you have connected to the chat.');
         client.broadcast.emit('update', name + ' has joined the chat.');
         serverSocket.emit('update-people',people);
+        numOfPeople++;
     });
+    client.on('num-users',function(){
+        serverSocket.emit('update-num-users',numOfPeople);
+    })
     client.on('send',function(msg){
         client.broadcast.emit('chat', people[client.id],msg);
         client.emit('chat','',msg)
     });
 
-
     client.on('disconnect',function(){
         client.broadcast.emit('update', people[client.id] + ' has left the chat');
         delete people[client.id];
+        if(numOfPeople > 0) {
+            numOfPeople--;
+        }
         serverSocket.emit('update-people',people);
+        serverSocket.emit('update-num-users',numOfPeople);
     });
 });
 

@@ -6165,3 +6165,51 @@ a.badge:focus {
 .affix {
   position: fixed;
 }
+
+.jumbotron-header {
+  background-color: #16a085;
+}
+
+.jumbotron-header h1 {
+  color: #ecf0f1;
+}
+#messages {
+
+}
+
+#userbox {
+  width:25%;
+  height: 500px;
+  float:left;
+  padding: 15px;
+}
+
+#chatbox {
+ height:300px;
+  padding: 15px;
+}
+
+* {
+  box-sizing: border-box;
+}
+#users {
+  padding:15px;
+}
+#header {
+  background-color: gainsboro;
+  text-align: center;
+  padding: 15px;
+  color: whitesmoke;
+  margin-bottom: 10px;
+}
+#footer {
+  background-color: #bdc3c7;
+
+}
+#chat{
+
+}
+
+#login {
+  margin-top:150px;
+}
