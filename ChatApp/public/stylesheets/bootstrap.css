@@ -6173,9 +6173,6 @@ a.badge:focus {
 .jumbotron-header h1 {
   color: #ecf0f1;
 }
-#messages {
-
-}
 
 #userbox {
   width:25%;
@@ -6185,7 +6182,7 @@ a.badge:focus {
 }
 
 #chatbox {
- height:300px;
+  height:300px;
   padding: 15px;
 }
 

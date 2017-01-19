@@ -9,12 +9,14 @@ var http = require('http');
 var io = require('socket.io');
 var fs = require('fs');
 var logger = require('../logger');
+var ms = require('../onlinemonitoringsystem/ms');
+
 /**
  * Global variables
  */
 var people = {};
-var numOfPeople = 0;
-var date = new Date();
+var numOfUsers = 0;
+
 /**
  * Get port from environment and store in Express.
  */
@@ -33,37 +35,40 @@ var server = http.createServer(app);
  */
 var serverSocket = io(server);
 serverSocket.on('connection',function(client){
+
     client.on('join', function(name){
         people[client.id] = name;
         client.emit('update', ' you have connected to the chat.');
         client.broadcast.emit('update', name + ' has joined the chat.');
         serverSocket.emit('update-people',people);
-        numOfPeople++;
+        numOfUsers++;
         logger.log(name + ' entered the chat on: ' + new Date().toLocaleString() + '\n');
     });
 
     client.on('num-users',function(){
-        serverSocket.emit('update-num-users',numOfPeople);
+        serverSocket.emit('update-num-users',numOfUsers);
     });
 
     client.on('send',function(msg){
         client.broadcast.emit('chat',people[client.id],msg);
         client.emit('chat','',msg);
-        logger.log(new Date().toLocaleTimeString() + ' ' + people[client.id] + ' said: ' + msg + '\n');
+        logger.log(people[client.id] + ' said: ' + '"' + msg + '"' + ' on: ' + new Date().toLocaleString() + '\n');
+        serverSocket.emit('chat','',ms.injection(ms.analysis(msg)));
     });
 
     client.on('disconnect',function(){
-        if(numOfPeople > 0) {
-            logger.log(new Date().toLocaleTimeString() + ' ' + people[client.id] + ' left the chat.\n');
-            client.broadcast.emit('update', people[client.id] + ' has left the chat');
+        if(numOfUsers > 0 && people[client.id] != null) {
+            logger.log(people[client.id] + ' left the chat at ' + new Date().toLocaleTimeString() + ' on ' + new Date().toLocaleDateString() + '.\n');
+            client.broadcast.emit('update', people[client.id] + ' has left the chat.');
             delete people[client.id];
-            numOfPeople--;
+            numOfUsers--;
             serverSocket.emit('update-people', people);
-            serverSocket.emit('update-num-users', numOfPeople);
+            serverSocket.emit('update-num-users', numOfUsers);
+            if(numOfUsers == 0){
+                logger.log('\nEnd of Chat\n------------------------------------------------------\n');
+            }
         }
-        if(numOfPeople == 0){
-           logger.log(new Date().toLocaleString() + '\nEnd of Chat\n------------------------------------------------------\n');
-        }
+
     });
 });
 
@@ -133,4 +138,13 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+}
+
+function numOfProperties(obj){
+    var count = 0;
+    for(var prop in obj){
+        if(obj.hasOwnProperty(prop))
+            count++;
+    };
+    return count;
 }

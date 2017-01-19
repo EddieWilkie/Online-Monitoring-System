@@ -15,4 +15,5 @@ function logging(data){
 function logger() {
     this.log = logging;
 }
+
 module.exports = new logger();
