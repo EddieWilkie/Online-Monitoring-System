@@ -12,6 +12,12 @@ function logging(data){
     });
 }
 
+function getLog(){
+    return fs.read('log.txt',function(data){
+       return data;
+    });
+}
+
 function logger() {
     this.log = logging;
 }

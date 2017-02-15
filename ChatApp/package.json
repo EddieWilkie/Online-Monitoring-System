@@ -13,6 +13,8 @@
     "express": "~4.14.0",
     "morgan": "~1.7.0",
     "serve-favicon": "~2.3.0",
-    "socket.io": "^1.7.2"
+    "socket.io": "^1.7.2",
+    "circular-buffer":"1.0.2",
+    "querystring": "0.2.0"
   }
 }
