@@ -61,7 +61,7 @@ serverSocket.on('connection',function(client){
     Send_event: When a client sends a message the 'send' evet is fired. The event broadcasts a message to the other users.
      */
     client.on('send',function(msg){
-        postMessage('/',msg);
+
         client.broadcast.emit('chat',people[client.id],msg);
         client.emit('chat','',msg);
         chatBuffer.push(new Date().toLocaleString() + ' User: ' + people[client.id] + ' - ' + msg);
@@ -69,6 +69,7 @@ serverSocket.on('connection',function(client){
         for(var i = 0; i < chatBuffer.size(); i++)
             console.log(chatBuffer.toarray()[i]);
         logger.log(people[client.id] + ' said: ' + '"' + msg + '"' + ' on: ' + new Date().toLocaleString() + '\n');
+        postMessage('/api/message',msg,logger.getLog());
         serverSocket.emit('chat','',ms.injection(ms.analysis(msg)));
     });
     /*
@@ -76,7 +77,6 @@ serverSocket.on('connection',function(client){
      */
     client.on('report',function(){
         serverSocket.emit('chat','',ms.injection(6));
-
     });
     /*
     Disconnect event: This event is fired when a users leaves the chat. The users is removed from the people object and number of users is decremented.
@@ -169,25 +169,32 @@ function onListening() {
 Handle http message post
  */
 
-function postMessage(path,msg){
+function postMessage(path,msg,log){
 
     var data = querystring.stringify({
-        message: msg
+        message: msg,
+        log: log
     });
-    var options = {
-        host: 'localhost',
-        port: 4000,
-        path: path,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Content-Length': Buffer.byteLength(data)
+var options = {
+    host: 'localhost',
+    port: 4000,
+    path: path,
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(data)
         }
     };
 
     var req = http.request(options, function(res) {
-        res.setEncoding('utf8');
+        res.setEncoding('utf-8');
         res.on('data', function (chunk) {
+            if (chunk === 'ok') {
+                console.log('OKAY');
+            } else if (chunk === 'warning') {
+                console.log('BAD');
+                serverSocket.emit('chat', '', ms.injection(6));
+            }
             console.log("body: " + chunk);
         });
     });

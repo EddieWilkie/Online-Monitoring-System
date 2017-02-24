@@ -1,25 +1,18 @@
-/**
- * Created by eddie on 20/12/2016.
- */
 var fs = require('fs');
 
 function logging(data){
-    fs.appendFile('./log.txt',data,function(err){
-        if(err){
-            console.error(err);
-        }
-        console.log('Message Appended');
-    });
+    fs.appendFileSync('./log.txt',data,'utf-8');
 }
 
 function getLog(){
-    return fs.read('log.txt',function(data){
-       return data;
-    });
+    return fs.readFileSync('log.txt','utf-8');
 }
 
 function logger() {
-    this.log = logging;
+
 }
+
+logger.prototype.log = logging;
+logger.prototype.getLog = getLog;
 
 module.exports = new logger();
