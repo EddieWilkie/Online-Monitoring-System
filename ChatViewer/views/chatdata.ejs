@@ -20,15 +20,15 @@
         /* Set gray background color and 100% height */
         .sidenav {
             padding-top: 20px;
-            background-color: #f1f1f1;
+            background-color: white;
             height: 100%;
         }
 
         /* Set black background color, white text and some padding */
         footer {
-            background-color: #555;
+            background-color: #f1f1f1;
             color: white;
-            padding: 15px;
+            padding: 5%;
         }
 
         /* On small screens, set height to 'auto' for sidenav and grid */
@@ -42,7 +42,7 @@
     </style>
 </head>
 <body>
-
+<!-- Nav-Bar Partial -->
 <% include C:\Users\eddie\IdeaProjects\Online-Monitoring-System\ChatViewer\views\partials\nav%>
 
 <div class="container-fluid text-center">
@@ -83,23 +83,26 @@
         </div>
     </div>
 </div>
-
 <script>
-    $("#msg1").hide();
-    $("#msg2").hide();
-    $("#msg3").hide();
+    $(document).ready(function () {
 
-    $('#chat1').click(function(){
-        $('#msg1').toggle();
-    });
-    $('#chat2').click(function(){
-        $('#msg2').toggle();
-    });
-    $('#chat3').click(function(){
-        $('#msg3').toggle();
+        $("#msg1").hide();
+        $("#msg2").hide();
+        $("#msg3").hide();
+
+
+        $('#chat1').click(function () {
+            $('#msg1').toggle();
+        });
+        $('#chat2').click(function () {
+            $('#msg2').toggle();
+        });
+        $('#chat3').click(function () {
+            $('#msg3').toggle();
+        });
     });
 </script>
-
+<!-- Footer Partial -->
 <% include C:\Users\eddie\IdeaProjects\Online-Monitoring-System\ChatViewer\views\partials\footer%>
 </body>
 </html>

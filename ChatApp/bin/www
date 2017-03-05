@@ -9,8 +9,6 @@ var http = require('http');
 var io = require('socket.io');
 var fs = require('fs');
 var logger = require('../logger');
-var ms = require('../onlinemonitoringsystem/ms');
-var CircularBuffer = require('circular-buffer');
 var querystring = require('querystring');
 
 /**
@@ -18,7 +16,7 @@ var querystring = require('querystring');
  */
 var people = {};
 var numOfUsers = 0;
-var chatBuffer = new CircularBuffer(30);
+
 
 /**
  * Get port from environment and store in Express.
@@ -58,25 +56,19 @@ serverSocket.on('connection',function(client){
         serverSocket.emit('update-num-users',numOfUsers);
     });
     /*
-    Send_event: When a client sends a message the 'send' evet is fired. The event broadcasts a message to the other users.
+    Send_event: When a client sends a message the 'send' event is fired. The event broadcasts a message to the other users.
      */
     client.on('send',function(msg){
-
         client.broadcast.emit('chat',people[client.id],msg);
         client.emit('chat','',msg);
-        chatBuffer.push(new Date().toLocaleString() + ' User: ' + people[client.id] + ' - ' + msg);
-        console.log(chatBuffer.size());
-        for(var i = 0; i < chatBuffer.size(); i++)
-            console.log(chatBuffer.toarray()[i]);
-        logger.log(people[client.id] + ' said: ' + '"' + msg + '"' + ' on: ' + new Date().toLocaleString() + '\n');
-        postMessage('/api/message',msg,logger.getLog());
-        serverSocket.emit('chat','',ms.injection(ms.analysis(msg)));
+        var log = people[client.id] + ' ( ' + new Date().toLocaleString() + ' ) ' + ': "' + msg + '"' + '\n';
+        postMessage('/api/message',msg,log);
     });
     /*
     Report_event: When the report button is clicked a 'report' event is fired. This injects the automatic injection into the chat.
      */
     client.on('report',function(){
-        serverSocket.emit('chat','',ms.injection(6));
+        serverSocket.emit('chat','',"Warning: an alarming amount of explicit content has been used in this chat.\nThis chat is now being recorded and will be sent to the police.");
     });
     /*
     Disconnect event: This event is fired when a users leaves the chat. The users is removed from the people object and number of users is decremented.
@@ -96,7 +88,6 @@ serverSocket.on('connection',function(client){
         }
     });
 });
-
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -175,6 +166,7 @@ function postMessage(path,msg,log){
         message: msg,
         log: log
     });
+
 var options = {
     host: 'localhost',
     port: 4000,
@@ -193,7 +185,7 @@ var options = {
                 console.log('OKAY');
             } else if (chunk === 'warning') {
                 console.log('BAD');
-                serverSocket.emit('chat', '', ms.injection(6));
+                serverSocket.emit('chat', '', "Warning: an alarming amount of explicit content has been used in this chat.\nThis chat is now being recorded and will be sent to the police.");
             }
             console.log("body: " + chunk);
         });

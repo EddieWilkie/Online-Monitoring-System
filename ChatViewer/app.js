@@ -7,10 +7,10 @@ var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
-var contact = require('./routes/contact');
 var login = require('./routes/login');
 var about = require('./routes/about');
 var chatdata = require('./routes/chatdata');
+var analytics = require('./routes/analytics');
 
 var app = express();
 
@@ -30,8 +30,8 @@ app.use('/', index);
 app.use('/users', users);
 app.use('/about', about);
 app.use('/login', login);
-app.use('/contact', contact);
 app.use('/api/get-data',chatdata);
+app.use('/api/get-analytics',analytics);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
